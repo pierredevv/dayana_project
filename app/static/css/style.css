@@ -399,6 +399,11 @@ select option {
     color: #a7f3d0;
 }
 
+.badge-rose {
+    background-color: rgba(244, 63, 94, 0.15);
+    color: #fda4af;
+}
+
 /* Contenedor del Lienzo Canvas */
 .canvas-container {
     flex: 1;

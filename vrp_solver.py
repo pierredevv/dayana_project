@@ -277,6 +277,9 @@ def visualizar_rutas(
     G: nx.DiGraph,
     routes: Dict[int, Dict],
     coordinates: Dict[int, Tuple[float, float]],
+    capacity_limit: int,
+    total_distance: float,
+    total_load: int,
     depot_index: int = 0
 ):
     """
@@ -338,7 +341,7 @@ def visualizar_rutas(
         
     ax.set_title(
         "VRP: Optimización del Enrutamiento de la Flota Logística\n"
-        f"Distancia Total Recorrida: {total_dist_recorrida} km | Carga Total: {total_carga_recorrida} unidades",
+        f"Distancia Total Recorrida: {total_distance} km | Carga Total: {total_load} unidades",
         fontsize=14, fontweight='bold', pad=15
     )
     ax.set_xlabel("Coordenada X (km)", fontsize=11)
@@ -354,7 +357,6 @@ def visualizar_rutas(
 
 def main():
     """Función principal que orquesta la ejecución del optimizador."""
-    global capacity_limit, total_dist_recorrida, total_carga_recorrida
     
     print("=" * 70)
     print("SISTEMA DE OPTIMIZACION DE RUTAS LOGISTICAS (VRP - OR-TOOLS)")
@@ -410,7 +412,7 @@ def main():
         print("=" * 70)
         
         # Lanzar visualización gráfica
-        visualizar_rutas(G, routes, coordinates, depot_index=0)
+        visualizar_rutas(G, routes, coordinates, capacity_limit, total_dist_recorrida, total_carga_recorrida, depot_index=0)
         
     else:
         print("\n[ERROR] No se pudo encontrar una solución factible para el problema actual.")

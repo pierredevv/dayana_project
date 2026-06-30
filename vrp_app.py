@@ -229,7 +229,6 @@ def resolver_dfs(
         if curr == end:
             break
             
-        # Invertir el orden de los vecinos para mantener un patrón de exploración natural
         for neighbor in G.neighbors(curr):
             if neighbor not in visited:
                 visited.add(neighbor)
