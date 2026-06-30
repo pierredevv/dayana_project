@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MazeCraft AI - Generador y Solucionador de Laberintos</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans para una tipografía ultra moderna -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome para iconos limpios y modernos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Panel de Control Lateral -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                </div>
+                <div>
+                    <h1>MazeCraft AI</h1>
+                    <span class="subtitle">Estructuras de Datos y Grafos</span>
+                </div>
+            </div>
+
+            <!-- Sección: Configuración del Laberinto -->
+            <section class="control-section">
+                <h2><i class="fa-solid fa-sliders"></i> Configuración</h2>
+                
+                <div class="control-group">
+                    <div class="range-labels">
+                        <label for="input-cols">Columnas (Ancho)</label>
+                        <span id="val-cols" class="range-badge">25</span>
+                    </div>
+                    <input type="range" id="input-cols" min="5" max="60" value="25" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="range-labels">
+                        <label for="input-rows">Filas (Alto)</label>
+                        <span id="val-rows" class="range-badge">25</span>
+                    </div>
+                    <input type="range" id="input-rows" min="5" max="60" value="25" step="1">
+                </div>
+            </section>
+
+            <!-- Sección: Algoritmos -->
+            <section class="control-section">
+                <h2><i class="fa-solid fa-code-fork"></i> Algoritmos</h2>
+                
+                <div class="control-group">
+                    <label for="select-generator"><i class="fa-solid fa-wand-magic-sparkles"></i> Generación</label>
+                    <div class="select-wrapper">
+                        <select id="select-generator">
+                            <option value="dfs">DFS (Backtracking Recursivo)</option>
+                            <option value="prim">Algoritmo de Prim (MST)</option>
+                            <option value="kruskal">Algoritmo de Kruskal (Union-Find)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="select-solver"><i class="fa-solid fa-route"></i> Resolución</label>
+                    <div class="select-wrapper">
+                        <select id="select-solver">
+                            <option value="bfs">BFS (Búsqueda en Anchura)</option>
+                            <option value="astar">A* (Heurística Manhattan)</option>
+                            <option value="dfs">DFS (Búsqueda en Profundidad)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="range-labels">
+                        <label for="input-speed"><i class="fa-solid fa-gauge-high"></i> Velocidad Animación</label>
+                        <span id="val-speed" class="range-badge">Media</span>
+                    </div>
+                    <input type="range" id="input-speed" min="1" max="100" value="50">
+                </div>
+            </section>
+
+            <!-- Sección: Acciones principales -->
+            <div class="action-buttons">
+                <button id="btn-generate" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate"></i> Generar Laberinto
+                </button>
+                
+                <div class="btn-group-row">
+                    <button id="btn-solve" class="btn btn-success" disabled>
+                        <i class="fa-solid fa-play"></i> Resolver
+                    </button>
+                    <button id="btn-clear" class="btn btn-secondary" disabled>
+                        <i class="fa-solid fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel de Estadísticas -->
+            <section class="stats-panel">
+                <h2><i class="fa-solid fa-chart-simple"></i> Estadísticas</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Tiempo Gen.</span>
+                        <span id="stat-gen-time" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Tiempo Res.</span>
+                        <span id="stat-solve-time" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Nodos Visitados</span>
+                        <span id="stat-visited" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Largo Ruta</span>
+                        <span id="stat-path-len" class="stat-value">-</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Área de Visualización Principal -->
+        <main class="main-content">
+            <header class="app-header">
+                <div class="header-info">
+                    <h2>Visualizador en Tiempo Real</h2>
+                    <p id="status-text">Genera un laberinto para comenzar</p>
+                </div>
+                <div class="header-badges">
+                    <span id="badge-gen" class="badge badge-indigo">Sin Laberinto</span>
+                    <span id="badge-solved" class="badge badge-emerald">Sin Resolver</span>
+                </div>
+            </header>
+
+            <div class="canvas-container">
+                <!-- Capa del Canvas -->
+                <canvas id="maze-canvas"></canvas>
+                
+                <!-- Loader / Overlay de estados -->
+                <div id="canvas-overlay" class="canvas-overlay hidden">
+                    <div class="spinner"></div>
+                    <span id="overlay-text">Cargando...</span>
+                </div>
+            </div>
+
+            <footer class="app-footer">
+                <p>Proyecto Académico | Algoritmos y Teoría de Grafos | Patrón Modelo-Vista-Controlador</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Scripts de la aplicación -->
+    <script src="{{ url_for('static', filename='js/maze_renderer.js') }}"></script>
+</body>
+</html>
